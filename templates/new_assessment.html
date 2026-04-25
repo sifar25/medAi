@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <p><a href="{{ url_for('home') }}">← Back to dashboard</a></p>
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">New triage run</p>
+            <h2>Run a new patient assessment</h2>
+            <p class="meta">Enter the latest patient context to generate a triage summary and practical support actions.</p>
+        </div>
+        <div class="mini-callout">
+            <strong>Presentation note</strong>
+            <p class="meta">This screen shows how a clinician or researcher can test a new scenario without editing the seed dataset manually.</p>
+        </div>
+    </div>
+    <form method="post">
+        <div class="form-grid">
+            <div>
+                <label for="name">Patient name</label>
+                <input id="name" name="name" value="Test Patient">
+
+                <label for="age">Age</label>
+                <input id="age" name="age" type="number" value="50">
+
+                <label for="condition">Condition</label>
+                <select id="condition" name="condition">
+                    {% for condition in conditions %}
+                    <option>{{ condition }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="medication_count">Medication count</label>
+                <input id="medication_count" name="medication_count" type="number" value="3">
+            </div>
+            <div>
+                <label for="missed_doses_last_7_days">Missed doses in last 7 days</label>
+                <input id="missed_doses_last_7_days" name="missed_doses_last_7_days" type="number" value="2">
+
+                <label for="missed_doses_last_30_days">Missed doses in last 30 days</label>
+                <input id="missed_doses_last_30_days" name="missed_doses_last_30_days" type="number" value="5">
+
+                <label for="side_effects">Side effects</label>
+                <select id="side_effects" name="side_effects">
+                    {% for side_effect in side_effect_options %}
+                    <option>{{ side_effect }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="previous_adherence_rate">Previous adherence rate (0.00 to 1.00)</label>
+                <input id="previous_adherence_rate" name="previous_adherence_rate" value="0.75">
+
+                <label for="appointment_attendance">Appointment attendance</label>
+                <select id="appointment_attendance" name="appointment_attendance">
+                    {% for option in attendance_options %}
+                    <option>{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <label for="save_to_dataset" class="checkbox-row">
+            <input id="save_to_dataset" type="checkbox" name="save_to_dataset" value="yes" checked style="width:auto; margin-right:8px;">
+            Save this assessment to the dataset (idempotent, no duplicates)
+        </label>
+        <div class="action-row top-gap">
+            <button type="submit">Generate support summary</button>
+            <span class="meta">Saved entries remain available after restart unless you explicitly reset the dataset.</span>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+    <title>MedAgent Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-body">
+    <div class="login-card">
+        <p class="eyebrow">MedAgent MSc prototype</p>
+        <h1>Welcome back</h1>
+        <p class="login-subtitle">Sign in to open the clinician demo workspace</p>
+
+        <div class="demo-note">
+            <strong>Demo accounts</strong><br>
+            {% for account in demo_accounts %}
+            {{ account[0] }} / {{ account[1] }}<br>
+            {% endfor %}
+        </div>
+
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
+
+        <form method="post">
+            <label for="username">Username</label>
+            <input id="username" name="username" placeholder="Enter username" required>
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="Enter password" required>
+
+            <button type="submit">Sign in</button>
+        </form>
+
+        <p class="small-text">
+            Local MSc prototype only. No real patient data is used, and clinician oversight is required for high-risk cases.
+        </p>
+    </div>
+</body>
+</html>

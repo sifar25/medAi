@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MedAgent Care Support</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+    <div class="topbar">
+        <div class="page-intro">
+            <h1>MedAgent Care Support</h1>
+            <p>Human-centred medication adherence triage for chronic illness follow-up and MSc demonstration</p>
+        </div>
+        {% if session.get("logged_in") %}
+        <div class="userbox">
+            <span>Signed in as {{ session.get("username") }}</span>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+        {% endif %}
+    </div>
+    {% if session.get("logged_in") %}
+    <div class="header-strip">
+        <span class="header-pill">Local prototype</span>
+        <span class="header-pill">Synthetic data only</span>
+        <span class="header-pill">Clinician oversight retained</span>
+    </div>
+    {% endif %}
+</header>
+<main>
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "medagent_local_humanised",
+  "version": "1.0.0",
+  "description": "Developing an Agentic Human-Centred AI System for Predictive and Proactive Medication Adherence in Patients with Chronic Illnesses.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test:e2e",
+    "test:e2e": "playwright test qa/lifecycle.spec.js --reporter=line",
+    "qa": "npm run test:e2e",
+    "capture:presentation": "node scripts/capture_presentation_screenshots.js",
+    "deck:presentation": "node scripts/build_presentation.js",
+    "build:presentation": "npm run capture:presentation && npm run deck:presentation"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.53.0"
+  }
+}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <p><a href="{{ result.back_url }}">← Back to dashboard</a></p>
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Assessment result</p>
+            <h2>{{ result.patient.name }}</h2>
+            <p class="meta"><strong>Condition:</strong> {{ result.patient.condition }}{% if result.patient.patient_id %} | <strong>Patient ID:</strong> {{ result.patient.patient_id }}{% endif %} | <strong>Assessment time:</strong> {{ result.created_at }}</p>
+        </div>
+        <div class="risk-panel risk-panel-{{ result.risk }}">
+            <span class="risk-label">Risk level</span>
+            <span class="risk-value">{{ result.risk }}</span>
+            <span class="risk-support">Confidence {{ "%.0f"|format(result.confidence * 100) }}%</span>
+        </div>
+    </div>
+
+    {% if result.saved_to_dataset %}
+    <div class="note">
+        <strong>Saved:</strong> This assessment was added to <em>patients.csv</em> and will remain after restart.
+    </div>
+    {% elif result.already_exists %}
+    <div class="note">
+        <strong>Already exists:</strong> Matching data was found, so no duplicate row was added.
+    </div>
+    {% endif %}
+
+    <h3>Predicted non-adherence risk</h3>
+    <div class="result-grid">
+        <div class="card soft-card full-height">
+            <h3>Clinical summary</h3>
+            <p>{{ result.explanation.summary }}</p>
+            <p class="meta">{{ result.condition_context }}</p>
+            <p class="meta"><strong>Interpretation:</strong> {{ result.risk_note }}</p>
+        </div>
+        <div class="card soft-card full-height">
+            <h3>Contributing factors</h3>
+            <ul class="clean-list">
+                {% for reason in result.explanation.reasons %}
+                <li>{{ reason }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="card soft-card">
+        <h3>Recommended support plan</h3>
+        <ul class="clean-list emphasis-list">
+            {% for action in result.actions %}
+            <li>{{ action }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if result.requires_clinician_review %}
+    <div class="note">
+        <strong>Human oversight required:</strong> This high-risk case should be reviewed by a clinician before major care actions are finalised.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

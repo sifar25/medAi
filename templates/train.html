@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <p><a href="{{ url_for('home') }}">← Back to dashboard</a></p>
+    <p class="eyebrow">Model maintenance</p>
+    <h2>Model training complete</h2>
+    <p>The local Random Forest model has been refreshed and saved as <strong>medication_model.pkl</strong>.</p>
+    <div class="grid two-up">
+        <div class="stat">
+            <h2>{{ "%.0f"|format(accuracy * 100) }}%</h2>
+            <p>Validation accuracy</p>
+        </div>
+        <div class="stat">
+            <h2>{{ total_records }}</h2>
+            <p>Synthetic records used</p>
+        </div>
+    </div>
+    <p class="meta">The current seed dataset covers {{ last_condition_count }} chronic condition categories. Retraining is useful after reseeding or after adding new sample assessments to the working dataset.</p>
+</div>
+{% endblock %}

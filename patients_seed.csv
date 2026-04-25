@@ -1,0 +1,21 @@
+patient_id,name,age,condition,medication_count,missed_doses_last_7_days,missed_doses_last_30_days,side_effects,previous_adherence_rate,appointment_attendance,risk_label
+P001,John Smith,45,Diabetes,3,5,12,Mild nausea,0.65,Good,High
+P002,Mary Johnson,62,Hypertension,2,1,3,None,0.92,Excellent,Low
+P003,Robert Williams,38,Asthma,1,0,1,None,0.98,Excellent,Low
+P004,Patricia Brown,55,Diabetes,4,3,8,Fatigue,0.72,Fair,Medium
+P005,Michael Davis,70,Heart Disease,5,6,18,Dizziness,0.58,Poor,High
+P006,Linda Miller,29,Depression,2,2,5,Weight gain,0.78,Good,Medium
+P007,James Wilson,52,Arthritis,3,1,4,Mild pain,0.88,Good,Low
+P008,Elizabeth Moore,67,Hypertension,2,0,2,None,0.95,Excellent,Low
+P009,David Taylor,41,Diabetes,3,4,10,Nausea,0.68,Fair,High
+P010,Jennifer Anderson,58,Heart Disease,4,2,6,Fatigue,0.75,Good,Medium
+P011,William Thomas,33,Asthma,1,0,0,None,0.99,Excellent,Low
+P012,Susan Jackson,48,Depression,2,3,7,Insomnia,0.70,Fair,Medium
+P013,Thomas White,65,Diabetes,4,5,14,Dizziness,0.62,Poor,High
+P014,Nancy Harris,44,Hypertension,2,1,3,None,0.90,Good,Low
+P015,Christopher Martin,56,Arthritis,3,2,5,Mild pain,0.82,Good,Medium
+P016,Karen Thompson,72,Heart Disease,5,7,20,Fatigue,0.55,Poor,High
+P017,Daniel Garcia,36,Diabetes,2,0,2,None,0.94,Excellent,Low
+P018,Michelle Martinez,51,Depression,2,2,6,Weight gain,0.76,Fair,Medium
+P019,Mark Robinson,59,Hypertension,3,1,4,None,0.87,Good,Low
+P020,Lisa Clark,40,Asthma,1,0,1,None,0.96,Excellent,Low
