@@ -21,6 +21,8 @@ Runtime scripts provide deterministic local lifecycle control:
 - status.sh
 - logs.sh
 
+Startup now validates that the chosen port is free before launching and rebuilds `.venv/` automatically if a copied project folder contains a relocated virtual environment from another machine or path.
+
 Presentation assets are maintained separately in PRESENTATION_GUIDE.md, SLIDE_OUTLINE.md, DEMO_SCRIPT.md, scripts/, and presentations/.
 
 ## Data and Model Assets

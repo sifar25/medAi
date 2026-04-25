@@ -20,6 +20,27 @@ DEMO_ACCOUNTS="${DEMO_ACCOUNTS:-}"
 MODEL_FILE="${ROOT_DIR}/medication_model.pkl"
 DATA_FILE="${ROOT_DIR}/patients.csv"
 
+port_conflict_details() {
+  if command -v lsof > /dev/null 2>&1; then
+    lsof -nP -iTCP:"${PORT}" -sTCP:LISTEN 2>/dev/null | tail -n +2 || true
+  fi
+}
+
+ensure_port_available() {
+  if ! command -v lsof > /dev/null 2>&1; then
+    return 0
+  fi
+
+  if lsof -nP -iTCP:"${PORT}" -sTCP:LISTEN > /dev/null 2>&1; then
+    echo "Port ${PORT} is already in use."
+    echo "Either stop the existing listener or start MedAgent on another port, for example:"
+    echo "  APP_PORT=5001 ./up.sh"
+    echo "Current listener(s):"
+    port_conflict_details
+    exit 1
+  fi
+}
+
 wait_for_health() {
   if ! command -v curl > /dev/null 2>&1; then
     echo "curl not found; skipping automatic health check."
@@ -100,6 +121,26 @@ pick_python() {
   echo ""
 }
 
+venv_needs_rebuild() {
+  if [[ ! -x "${VENV_DIR}/bin/python" ]]; then
+    return 0
+  fi
+
+  if [[ -f "${VENV_DIR}/pyvenv.cfg" ]] && ! grep -Fq "${VENV_DIR}" "${VENV_DIR}/pyvenv.cfg"; then
+    return 0
+  fi
+
+  if [[ -f "${VENV_DIR}/bin/pip" ]]; then
+    local pip_shebang
+    pip_shebang="$(head -n 1 "${VENV_DIR}/bin/pip" 2>/dev/null || true)"
+    if [[ "${pip_shebang}" == '#!'* ]] && [[ "${pip_shebang}" != "#!${VENV_DIR}/bin/"* ]]; then
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
 PYTHON_BIN="$(pick_python)"
 
 if [[ -z "${PYTHON_BIN}" ]]; then
@@ -124,8 +165,14 @@ if [[ -f "${PID_FILE}" ]]; then
   rm -f "${PID_FILE}"
 fi
 
+ensure_port_available
+
 if [[ ! -d "${VENV_DIR}" ]]; then
   echo "Creating virtual environment..."
+  "${PYTHON_BIN}" -m venv "${VENV_DIR}"
+elif venv_needs_rebuild; then
+  echo "Recreating virtual environment because the existing .venv was copied from another location..."
+  rm -rf "${VENV_DIR}"
   "${PYTHON_BIN}" -m venv "${VENV_DIR}"
 fi
 
@@ -171,9 +218,16 @@ nohup env APP_HOST="${HOST}" APP_PORT="${PORT}" FLASK_DEBUG=0 \
 APP_PID="$!"
 echo "${APP_PID}" > "${PID_FILE}"
 
+if ! wait_for_health; then
+  rm -f "${PID_FILE}"
+  if ps -p "${APP_PID}" > /dev/null 2>&1; then
+    kill "${APP_PID}" >/dev/null 2>&1 || true
+  fi
+  exit 1
+fi
+
 echo "Started MedAgent (PID ${APP_PID})"
 echo "Open: http://${HOST}:${PORT}"
-wait_for_health
 if [[ -n "${DEMO_ACCOUNTS}" ]]; then
   echo "Credentials loaded from DEMO_ACCOUNTS env."
 else

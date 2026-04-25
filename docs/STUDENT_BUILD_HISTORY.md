@@ -369,6 +369,33 @@ User impact:
 - The student now has a ready-to-use spoken walkthrough instead of needing to improvise a viva demo.
 - Presentation assets and speaking flow are now aligned in one documented set.
 
+### 2026-04-25 (startup portability pass)
+
+Change summary:
+
+- Hardened startup to fail clearly when the chosen port is already occupied.
+- Added automatic `.venv` rebuild when a copied or unzipped project folder contains a relocated virtual environment from another path.
+- Updated handoff docs with the alternate-port startup command.
+
+Files touched:
+
+- up.sh
+- README.md
+- docs/USER_GUIDE.md
+- docs/TECHNICAL_GUIDE.md
+- docs/STUDENT_BUILD_HISTORY.md
+
+Validation done:
+
+- reproduced port-occupied startup failure in an extracted copy
+- verified clear port-conflict messaging
+- verified automatic virtual-environment rebuild on an extracted copy containing a relocated `.venv`
+
+User impact:
+
+- A student unzipping the package gets a clearer error if port `5000` is already taken.
+- A copied local `.venv` no longer silently breaks startup after extraction or folder moves.
+
 ## Template for Future Entries
 
 Date:

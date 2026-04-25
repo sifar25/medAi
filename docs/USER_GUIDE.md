@@ -33,6 +33,12 @@ http://127.0.0.1:5000
 
 The app waits until the local health check is ready before startup completes.
 
+If `5000` is already occupied on your machine, start on another port instead:
+
+```bash
+APP_PORT=5001 ./up.sh
+```
+
 ## Quick Start (Windows)
 
 1. Open Command Prompt in this project folder.

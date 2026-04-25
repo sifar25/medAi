@@ -43,6 +43,12 @@ Open:
 http://127.0.0.1:5000
 ```
 
+If port `5000` is already in use on your machine, start on another port:
+
+```bash
+APP_PORT=5001 ./up.sh
+```
+
 Stop:
 
 ```bash
