@@ -29,11 +29,21 @@ Note: These are local demo credentials for prototype use only.
 http://127.0.0.1:5000
 ```
 
+If `./up.sh` reports a different port, use that URL instead. You can always confirm the current URL with:
+
+```bash
+./status.sh
+```
+
 1. Sign in with one of the default accounts.
 
 The app waits until the local health check is ready before startup completes.
 
-If `5000` is already occupied on your machine, start on another port instead:
+If another MedAgent instance is already running, `./up.sh` stops it first and then restarts cleanly.
+
+If `5000` is already occupied by something else on the machine, `./up.sh` automatically moves to the next free port in the range `5000` to `5005`.
+
+If you want to force a specific port instead:
 
 ```bash
 APP_PORT=5001 ./up.sh

@@ -3,8 +3,13 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PID_FILE="${ROOT_DIR}/.medagent.pid"
+PORT_FILE="${ROOT_DIR}/.medagent.port"
 HOST="${APP_HOST:-127.0.0.1}"
 PORT="${APP_PORT:-5000}"
+
+if [[ -f "${PORT_FILE}" ]]; then
+  PORT="$(cat "${PORT_FILE}")"
+fi
 
 cd "${ROOT_DIR}"
 

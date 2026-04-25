@@ -37,13 +37,21 @@ Start on macOS or Linux:
 ./up.sh
 ```
 
+The script now stops any lingering MedAgent instance and automatically chooses the first free port in the range `5000` to `5005`.
+
 Open:
 
 ```text
 http://127.0.0.1:5000
 ```
 
-If port `5000` is already in use on your machine, start on another port:
+If `5000` is unavailable, `./up.sh` prints the actual selected URL. You can also confirm it with:
+
+```bash
+./status.sh
+```
+
+If you want to force a specific port instead of using the automatic selection:
 
 ```bash
 APP_PORT=5001 ./up.sh
@@ -98,6 +106,8 @@ Clean presentation refresh from a reset baseline:
 npm run test:e2e
 npm run build:presentation
 ```
+
+Note: because `./up.sh` may choose a different port automatically, use the URL it prints after startup rather than assuming `5000` every time.
 
 ## Shareable handover notes
 

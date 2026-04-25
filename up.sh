@@ -11,6 +11,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="${ROOT_DIR}/.venv"
 PID_FILE="${ROOT_DIR}/.medagent.pid"
+PORT_FILE="${ROOT_DIR}/.medagent.port"
 LOG_FILE="${ROOT_DIR}/.medagent.log"
 HOST="${APP_HOST:-127.0.0.1}"
 PORT="${APP_PORT:-5000}"
@@ -19,6 +20,7 @@ DEMO_PASSWORD="${DEMO_PASSWORD:-medagent123}"
 DEMO_ACCOUNTS="${DEMO_ACCOUNTS:-}"
 MODEL_FILE="${ROOT_DIR}/medication_model.pkl"
 DATA_FILE="${ROOT_DIR}/patients.csv"
+AUTO_PORT_SELECTED=false
 
 port_conflict_details() {
   if command -v lsof > /dev/null 2>&1; then
@@ -26,19 +28,95 @@ port_conflict_details() {
   fi
 }
 
-ensure_port_available() {
+port_is_available() {
   if ! command -v lsof > /dev/null 2>&1; then
     return 0
   fi
 
-  if lsof -nP -iTCP:"${PORT}" -sTCP:LISTEN > /dev/null 2>&1; then
-    echo "Port ${PORT} is already in use."
-    echo "Either stop the existing listener or start MedAgent on another port, for example:"
-    echo "  APP_PORT=5001 ./up.sh"
-    echo "Current listener(s):"
-    port_conflict_details
-    exit 1
+  if lsof -nP -iTCP:"$1" -sTCP:LISTEN > /dev/null 2>&1; then
+    return 1
   fi
+
+  return 0
+}
+
+medagent_cwd_for_pid() {
+  if ! command -v lsof > /dev/null 2>&1; then
+    return 1
+  fi
+
+  lsof -a -p "$1" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | head -n 1
+}
+
+list_medagent_pids() {
+  if ! command -v pgrep > /dev/null 2>&1; then
+    return 0
+  fi
+
+  local pid
+  while read -r pid; do
+    [[ -z "${pid}" ]] && continue
+    [[ "${pid}" == "$$" ]] && continue
+    local cwd
+    cwd="$(medagent_cwd_for_pid "${pid}" || true)"
+    if [[ -n "${cwd}" ]] && [[ "$(basename "${cwd}")" == "$(basename "${ROOT_DIR}")" ]]; then
+      echo "${pid}"
+    fi
+  done < <(pgrep -f '[Pp]ython app\.py' || true)
+}
+
+stop_medagent_process() {
+  local pid="$1"
+  kill "${pid}" >/dev/null 2>&1 || true
+  for _ in {1..10}; do
+    if ! ps -p "${pid}" > /dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
+  done
+  kill -9 "${pid}" >/dev/null 2>&1 || true
+}
+
+cleanup_existing_medagent_instances() {
+  local found=false
+  local pid
+  while read -r pid; do
+    [[ -z "${pid}" ]] && continue
+    if [[ "${found}" == false ]]; then
+      echo "Stopping existing MedAgent instance(s) before startup..."
+      found=true
+    fi
+    stop_medagent_process "${pid}"
+    echo "Stopped MedAgent process ${pid}."
+  done < <(list_medagent_pids)
+
+  rm -f "${PID_FILE}" "${PORT_FILE}"
+}
+
+select_startup_port() {
+  if [[ -n "${APP_PORT:-}" ]]; then
+    if ! port_is_available "${PORT}"; then
+      echo "Port ${PORT} is already in use."
+      echo "Current listener(s):"
+      port_conflict_details
+      exit 1
+    fi
+    return
+  fi
+
+  local candidate
+  for candidate in 5000 5001 5002 5003 5004 5005; do
+    if port_is_available "${candidate}"; then
+      PORT="${candidate}"
+      if [[ "${PORT}" != "5000" ]]; then
+        AUTO_PORT_SELECTED=true
+      fi
+      return
+    fi
+  done
+
+  echo "No free MedAgent startup port found in the range 5000-5005."
+  exit 1
 }
 
 wait_for_health() {
@@ -155,17 +233,8 @@ if [[ "${FRESH_START}" == "true" ]]; then
   "${ROOT_DIR}/down.sh" --clean-runtime --reset-data >/dev/null 2>&1 || true
 fi
 
-if [[ -f "${PID_FILE}" ]]; then
-  EXISTING_PID="$(cat "${PID_FILE}")"
-  if ps -p "${EXISTING_PID}" > /dev/null 2>&1; then
-    echo "MedAgent is already running (PID ${EXISTING_PID})."
-    echo "Open: http://${HOST}:${PORT}"
-    exit 0
-  fi
-  rm -f "${PID_FILE}"
-fi
-
-ensure_port_available
+cleanup_existing_medagent_instances
+select_startup_port
 
 if [[ ! -d "${VENV_DIR}" ]]; then
   echo "Creating virtual environment..."
@@ -217,9 +286,10 @@ nohup env APP_HOST="${HOST}" APP_PORT="${PORT}" FLASK_DEBUG=0 \
 
 APP_PID="$!"
 echo "${APP_PID}" > "${PID_FILE}"
+echo "${PORT}" > "${PORT_FILE}"
 
 if ! wait_for_health; then
-  rm -f "${PID_FILE}"
+  rm -f "${PID_FILE}" "${PORT_FILE}"
   if ps -p "${APP_PID}" > /dev/null 2>&1; then
     kill "${APP_PID}" >/dev/null 2>&1 || true
   fi
@@ -228,6 +298,9 @@ fi
 
 echo "Started MedAgent (PID ${APP_PID})"
 echo "Open: http://${HOST}:${PORT}"
+if [[ "${AUTO_PORT_SELECTED}" == true ]]; then
+  echo "Port 5000 was unavailable, so MedAgent selected port ${PORT}."
+fi
 if [[ -n "${DEMO_ACCOUNTS}" ]]; then
   echo "Credentials loaded from DEMO_ACCOUNTS env."
 else

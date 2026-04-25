@@ -54,9 +54,12 @@ rm -f patients.csv
 
 ```bash
 ./up.sh --skip-install
+./status.sh
 ./down.sh --clean-runtime
 rm -f patients.csv
 ```
+
+If `./up.sh` selects a port other than `5000`, use the URL printed during startup or shown by `./status.sh`.
 
 ## Recommended zip contents
 

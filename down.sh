@@ -9,6 +9,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PID_FILE="${ROOT_DIR}/.medagent.pid"
+PORT_FILE="${ROOT_DIR}/.medagent.port"
 LOG_FILE="${ROOT_DIR}/.medagent.log"
 MODEL_FILE="${ROOT_DIR}/medication_model.pkl"
 DATA_FILE="${ROOT_DIR}/patients.csv"
@@ -83,7 +84,7 @@ else
   fi
 fi
 
-rm -f "${PID_FILE}"
+rm -f "${PID_FILE}" "${PORT_FILE}"
 
 if [[ "${CLEAN_RUNTIME}" == "true" ]]; then
   echo "Cleaning runtime artifacts..."

@@ -396,6 +396,56 @@ User impact:
 - A student unzipping the package gets a clearer error if port `5000` is already taken.
 - A copied local `.venv` no longer silently breaks startup after extraction or folder moves.
 
+### 2026-04-25 (auto-port and process cleanup pass)
+
+Change summary:
+
+- Updated `up.sh` to stop lingering MedAgent instances before each launch.
+- Added automatic free-port selection across `5000` to `5005` when no `APP_PORT` override is provided.
+- Persisted the selected port so `status.sh` reports the actual running URL.
+
+Files touched:
+
+- up.sh
+- down.sh
+- status.sh
+- README.md
+- docs/USER_GUIDE.md
+- docs/TECHNICAL_GUIDE.md
+- docs/STUDENT_BUILD_HISTORY.md
+
+Validation done:
+
+- verified startup chooses a free port when `5000` is occupied
+- verified startup restarts cleanly after stopping an existing MedAgent process
+
+User impact:
+
+- Students no longer need to reason about `5000` versus `5001` in normal use.
+- Restarting with `./up.sh` now cleans up older MedAgent instances and brings the app back on a usable port automatically.
+
+### 2026-04-25 (startup URL clarity pass)
+
+Change summary:
+
+- Clarified the handoff docs so students use the URL printed by `./up.sh` or reported by `./status.sh` after auto-port selection.
+
+Files touched:
+
+- README.md
+- docs/USER_GUIDE.md
+- docs/SUBMISSION_CHECKLIST.md
+- docs/TECHNICAL_GUIDE.md
+- docs/STUDENT_BUILD_HISTORY.md
+
+Validation done:
+
+- reviewed documentation alignment with the auto-port startup behavior
+
+User impact:
+
+- Less confusion when a student starts the project on a port other than `5000`.
+
 ## Template for Future Entries
 
 Date:
